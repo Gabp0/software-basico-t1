@@ -11,27 +11,30 @@ int main(int argc, char const *argv[])
     printf("\n"); // coloca o buffer do printf antes do bloco do alocador
     iniciaAlocador();
 
-    a = bestFit(100);
+    a = nextFit(200);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     liberaMem(a);
     printHeap();
 
-    a = bestFit(60);
+    a = nextFit(100);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     printHeap();
 
-    b = bestFit(30);
+    b = nextFit(30);
     strcpy(b, " TESTE ");
     printf("%p %s\n", b, (char *)b);
     printHeap();
     liberaMem(a);
     liberaMem(b);
-    printf("bloco n sei\n");
+
+    a = nextFit(30);
+    strcpy(a, " TESTE ");
+    printf("%p %s\n", a, (char *)a);
     printHeap();
 
-    a = bestFit(30);
+    a = nextFit(90);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     printHeap();
