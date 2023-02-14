@@ -17,7 +17,7 @@ void finalizaAlocador(void)
     brk(topo_inicial);
 }
 
-void *firstFit(int num_bytes)
+void *firstFit(long long int num_bytes)
 {
     void *topo_atual = sbrk(0);
     char *aux_ptr = topo_inicial;

@@ -21,22 +21,22 @@ int main(int argc, char const *argv[])
     //     liberaMem(a);
     // }
 
-    a = bestFit(100);
+    a = alocaMem(100);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     liberaMem(a);
 
-    b = bestFit(60);
+    b = alocaMem(60);
     strcpy(b, " TESTE ");
     printf("%p %s\n", b, (char *)b);
 
-    a = firstFit(30);
+    a = alocaMem(30);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     liberaMem(a);
     liberaMem(b);
 
-    a = bestFit(30);
+    a = alocaMem(30);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     liberaMem(a);
