@@ -1,12 +1,8 @@
 
-.data
+.section .data
+    topo_inicial: .quad 0
 
-section .text
-    quad topo_inicial 0
-
-global _start
-
-_start:
+.section .text
 
 iniciaAlocador:
     pushq %rbp
@@ -27,6 +23,16 @@ finalizaAlocador:
     popq %rbp
     ret
 
+liberaMem:
+	pushq	%rbp
+	movq	%rsp, %rbp
+#	movq	%rdi, -8(%rbp)
+	movq	-8(%rbp), %rax
+	subq	$5, %rax
+	movq	$0, (%rax)
+	popq	%rbp
+    ret
+
 alocaMem:
     pushq %rbp
     movq %rsp, %rbp
@@ -38,12 +44,3 @@ alocaMem:
     popq %rbp
     ret
 
-liberaMem:
-	pushq	%rbp
-	movq	%rsp, %rbp
-#	movq	%rdi, -8(%rbp)
-	movq	-8(%rbp), %rax
-	subq	$5, %rax
-	movq	$0, (%rax)
-	popq	%rbp
-    ret
