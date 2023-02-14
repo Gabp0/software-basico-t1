@@ -3,8 +3,8 @@
 
 void iniciaAlocador(void);
 void finalizaAlocador(void);
-void *alocaMem(int num_bytes);
+void *firstFit(int num_bytes);
+void *bestFit(int num_bytes);
 int liberaMem(void *bloco);
-void breakp(void);
 
 #endif
