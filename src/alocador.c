@@ -25,7 +25,7 @@ void *firstFit(int num_bytes)
     // procura por um bloco vazio com um tamanho >= a num_bytes
     while (aux_ptr < (char *)topo_atual)
     {
-        if ((*aux_ptr == 0) && (*((int *)(aux_ptr + 1)) > num_bytes))
+        if ((*aux_ptr == 0) && (*((int *)(aux_ptr + 1)) >= num_bytes))
         {
             break;
         }
@@ -59,14 +59,15 @@ void *bestFit(int num_bytes)
     char *aux_ptr = topo_inicial;
 
     // procura pelo menor bloco vazio com um tamanho >= a num_bytes
-    void *best_ptr = aux_ptr;
-    int best_size = num_bytes + 1;
+    void *best_ptr = topo_atual;
+    int best_size = __INT32_MAX__;
     while (aux_ptr < (char *)topo_atual)
     {
         int current_block_size = *((int *)(aux_ptr + 1));
-        if ((*aux_ptr == 0) && (current_block_size >= num_bytes) && (current_block_size < best_size))
+        if (((*aux_ptr) == 0) && (current_block_size >= num_bytes) && (current_block_size < best_size))
         {
             best_ptr = aux_ptr;
+            best_size = current_block_size;
         }
         aux_ptr += current_block_size + 5;
     }
@@ -96,4 +97,22 @@ void *bestFit(int num_bytes)
 int liberaMem(void *bloco)
 {
     *((char *)(bloco - 5)) = 0;
+}
+
+void printHeap(void)
+{
+    char *aux_ptr = topo_inicial;
+    char *topo_atual = sbrk(0);
+    int counter = 0;
+    while (aux_ptr < topo_atual)
+    {
+        if ((counter % 8) == 0)
+        {
+            printf("\n%p : ", aux_ptr);
+        }
+        printf("0x%02x ", *(aux_ptr));
+        aux_ptr++;
+        counter++;
+    }
+    printf("\n");
 }
