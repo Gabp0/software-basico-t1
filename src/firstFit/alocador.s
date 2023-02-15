@@ -1,4 +1,3 @@
-	.file	"alocador.c"
 	.text
 	.globl	initial_top
 	.bss
@@ -11,78 +10,41 @@ initial_top:
 	.globl	iniciaAlocador
 	.type	iniciaAlocador, @function
 iniciaAlocador:
-.LFB0:
-	.cfi_startproc
-	endbr64
 	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
 	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-#APP
-# 11 "alocador.c" 1
 	movq $12, %rax
 	movq $0, %rdi
 	syscall
 	movq %rax, initial_top(%rip)
-	
-# 0 "" 2
-#NO_APP
-	nop
 	popq	%rbp
-	.cfi_def_cfa 7, 8
 	ret
-	.cfi_endproc
 .LFE0:
 	.size	iniciaAlocador, .-iniciaAlocador
 	.globl	finalizaAlocador
 	.type	finalizaAlocador, @function
 finalizaAlocador:
-.LFB1:
-	.cfi_startproc
 	endbr64
 	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
 	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-#APP
-# 22 "alocador.c" 1
 	movq initial_top(%rip), %rax
 	movq %rax, %rdi
 	movq $12, %rax
 	syscall
-	
-# 0 "" 2
-#NO_APP
-	nop
 	popq	%rbp
-	.cfi_def_cfa 7, 8
 	ret
-	.cfi_endproc
 .LFE1:
 	.size	finalizaAlocador, .-finalizaAlocador
 	.globl	alocaMem
 	.type	alocaMem, @function
 alocaMem:
 .LFB2:
-	.cfi_startproc
-	endbr64
 	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
 	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
 	movq	%rdi, -40(%rbp)
-#APP
-# 33 "alocador.c" 1
 	movq $12, %rax
 	movq $0, %rdi
 	syscall
 	movq %rax, -24(%rbp)
-	
-# 0 "" 2
-#NO_APP
 	movq	initial_top(%rip), %rax
 	movq	%rax, -32(%rbp)
 	jmp	.L4
@@ -112,19 +74,14 @@ alocaMem:
 	movq	-32(%rbp), %rax
 	cmpq	-24(%rbp), %rax
 	jne	.L8
-#APP
-# 55 "alocador.c" 1
 	movq $12, %rax
 	movq $0, %rdi
 	syscall
-	movq -40(%rbp), %rdi
-	addq %rax, %rdi
-	addq $10, %rdi
+	movq %rax, %rdi
+	addq -40(%rbp), %rdi
+	addq $9, %rdi
 	movq $12, %rax
 	syscall
-	
-# 0 "" 2
-#NO_APP
 	jmp	.L9
 .L8:
 	movq	-32(%rbp), %rax
@@ -159,57 +116,53 @@ alocaMem:
 	addq	$8, -32(%rbp)
 	movq	-32(%rbp), %rax
 	popq	%rbp
-	.cfi_def_cfa 7, 8
 	ret
-	.cfi_endproc
 .LFE2:
 	.size	alocaMem, .-alocaMem
 	.globl	liberaMem
 	.type	liberaMem, @function
 liberaMem:
-.LFB3:
-	.cfi_startproc
-	endbr64
 	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
 	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
 	movq	%rdi, -8(%rbp)
 	movq	-8(%rbp), %rax
 	subq	$5, %rax
 	movb	$0, (%rax)
 	nop
 	popq	%rbp
-	.cfi_def_cfa 7, 8
 	ret
-	.cfi_endproc
 .LFE3:
 	.size	liberaMem, .-liberaMem
 	.section	.rodata
 .LC0:
-	.string	"\n%p : "
+	.string	"%p : %p"
 .LC1:
+	.string	"\n%p : "
+.LC2:
 	.string	"0x%02x "
 	.text
 	.globl	printHeap
 	.type	printHeap, @function
 printHeap:
 .LFB4:
-	.cfi_startproc
 	endbr64
 	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
 	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
 	subq	$32, %rsp
 	movq	initial_top(%rip), %rax
 	movq	%rax, -24(%rbp)
-	movl	$0, %edi
-	call	sbrk@PLT
-	movq	%rax, -8(%rbp)
+	movq $12, %rax
+	movq $0, %rdi
+	syscall
+	movq %rax, -8(%rbp)
 	movq	$0, -16(%rbp)
+	movq	-8(%rbp), %rdx
+	movq	-24(%rbp), %rax
+	movq	%rax, %rsi
+	leaq	.LC0(%rip), %rax
+	movq	%rax, %rdi
+	movl	$0, %eax
+	call	printf@PLT
 	jmp	.L14
 .L16:
 	movq	-16(%rbp), %rax
@@ -218,7 +171,7 @@ printHeap:
 	jne	.L15
 	movq	-24(%rbp), %rax
 	movq	%rax, %rsi
-	leaq	.LC0(%rip), %rax
+	leaq	.LC1(%rip), %rax
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	printf@PLT
@@ -227,7 +180,7 @@ printHeap:
 	movzbl	(%rax), %eax
 	movzbl	%al, %eax
 	movl	%eax, %esi
-	leaq	.LC1(%rip), %rax
+	leaq	.LC2(%rip), %rax
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	printf@PLT
@@ -241,9 +194,7 @@ printHeap:
 	call	putchar@PLT
 	nop
 	leave
-	.cfi_def_cfa 7, 8
 	ret
-	.cfi_endproc
 .LFE4:
 	.size	printHeap, .-printHeap
 	.ident	"GCC: (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0"
