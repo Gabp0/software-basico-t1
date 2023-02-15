@@ -25,25 +25,26 @@ void *alocaMem(long long num_bytes)
 {
     char *aux_ptr = last_allocated;
 
-    // procura por um bloco vazio com um tamanho >= a num_bytes a partir do ultimo alocado
     short found = 0;
-    long long search_range = current_top - initial_top;
-    for (size_t i = 0; i < search_range; i++)
+    if (aux_ptr != current_top)
     {
-        long long current_block_size = *((long long *)(aux_ptr + 1));
-        if ((*aux_ptr == 0) && (current_block_size >= num_bytes))
-        {
-            found = 1;
-            break;
-        }
-        aux_ptr += current_block_size + 9;
+        do {
+            long long current_block_size = *((long long *)(aux_ptr + 1));
+            if ((*aux_ptr == 0) && (current_block_size >= num_bytes))
+            {
+                found = 1;
+                break;
+            }
 
-        if (aux_ptr >= (char *)current_top) // rotaciona a lista
-        {
-            aux_ptr = initial_top;
-        }
+            aux_ptr += current_block_size + 9;
+            if (aux_ptr >= (char *) current_top)
+            {
+                aux_ptr = initial_top;
+            }
+
+        } while (aux_ptr != last_allocated);
     }
-
+    
     // se nao achou, aloca um novo
     if (!found)
     {
