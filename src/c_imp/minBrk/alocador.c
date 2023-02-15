@@ -1,5 +1,4 @@
 #include "alocador.h"
-#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -9,47 +8,55 @@ void *current_top;
 void iniciaAlocador(void)
 // salva o topo inicial da heap
 {
-    initial_top = sbrk(0);
+    // initial_top = sbrk(0);
+    __asm__(
+        "movq $12, %rax\n\t"
+        "movq $0, %rdi\n\t"
+        "syscall\n\t"
+        "movq %rax, initial_top(%rip)\n\t");
     current_top = initial_top;
 }
 
 void finalizaAlocador(void)
 // restaura o topo da heap inicial
 {
-    brk(initial_top);
+    // brk(initial_top);
+    __asm__(
+        "movq initial_top(%rip), %rax\n\t"
+        "movq %rax, %rdi\n\t"
+        "movq $12, %rax\n\t"
+        "syscall\n\t");
 }
 
 void *alocaMem(long long num_bytes)
 {
     char *aux_ptr = initial_top;
 
-    // procura pelo menor bloco vazio com um tamanho >= a num_bytes
-    void *best_ptr = current_top;
-    long long best_size = __LONG_LONG_MAX__;
+    // procura por um bloco vazio com um tamanho >= a num_bytes
     while (aux_ptr < (char *)current_top)
     {
-        long long current_block_size = *((long long *)(aux_ptr + 1));
-        if (((*aux_ptr) == 0) && (current_block_size >= num_bytes) && (current_block_size < best_size))
+        long long cblock_size = *((long long *)(aux_ptr + 1));
+        if ((*aux_ptr == 0) && (cblock_size >= num_bytes))
         {
-            best_ptr = aux_ptr;
-            best_size = current_block_size;
+            break;
         }
-        aux_ptr += current_block_size + 9;
+        aux_ptr += cblock_size + 9;
     }
-    aux_ptr = best_ptr;
 
     // se nao achou, aloca um novo
     if (aux_ptr == current_top)
     {
-        current_top = sbrk(num_bytes + 9) + num_bytes + 9;
+        long long bsize = (((long)(num_bytes / 4096)) + 1) * 4096;
+        current_top = sbrk(bsize + 9) + bsize + 9;
+        *((long long *)(aux_ptr + 1)) = bsize;
     }
 
     // divide o bloco, caso tenha mais bytes
     if (*((long long *)(aux_ptr + 1)) > (num_bytes + 9))
     {
-        long long size = *(long long *)(aux_ptr + 1) - num_bytes - 9;
+        long long nblock_size = *(long long *)(aux_ptr + 1) - num_bytes - 9;
         *(aux_ptr + num_bytes + 9) = 0;
-        *((long long *)(aux_ptr + num_bytes + 10)) = size;
+        *((long long *)(aux_ptr + num_bytes + 10)) = nblock_size;
     }
     // caso ainda tenha mais bytes, mas n o suficiente para um bloco novo
     else if (*((long long *)(aux_ptr + 1)) > num_bytes)
@@ -79,6 +86,7 @@ void printHeap(void)
 {
     unsigned char *aux_ptr = initial_top;
     long long counter = 0;
+
     while (aux_ptr < (unsigned char *)current_top)
     {
         if ((counter % 8) == 0)
@@ -88,6 +96,11 @@ void printHeap(void)
         printf("0x%02x ", *(aux_ptr));
         aux_ptr++;
         counter++;
+
+        if (counter > 200)
+        {
+            break;
+        }
     }
     printf("\n");
 }
