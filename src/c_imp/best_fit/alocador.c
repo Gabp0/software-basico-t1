@@ -9,14 +9,24 @@ void *current_top;
 void iniciaAlocador(void)
 // salva o topo inicial da heap
 {
-    initial_top = sbrk(0);
+    // initial_top = sbrk(0);
+    __asm__(
+        "movq $12, %rax\n\t"
+        "movq $0, %rdi\n\t"
+        "syscall\n\t"
+        "movq %rax, initial_top(%rip)\n\t");
     current_top = initial_top;
 }
 
 void finalizaAlocador(void)
 // restaura o topo da heap inicial
 {
-    brk(initial_top);
+    // brk(initial_top);
+    __asm__(
+        "movq initial_top(%rip), %rax\n\t"
+        "movq %rax, %rdi\n\t"
+        "movq $12, %rax\n\t"
+        "syscall\n\t");
 }
 
 void *alocaMem(long long num_bytes)
@@ -41,7 +51,17 @@ void *alocaMem(long long num_bytes)
     // se nao achou, aloca um novo
     if (aux_ptr == current_top)
     {
-        current_top = sbrk(num_bytes + 9) + num_bytes + 9;
+        // current_top = sbrk(num_bytes + 9) + num_bytes + 9;
+        __asm__(
+            "movq $12, %rax\n\t"
+            "movq $0, %rdi\n\t"
+            "syscall\n\t"
+            "movq %rax, %rdi\n\t"
+            "addq -56(%rbp), %rdi\n\t"
+            "addq $9, %rdi\n\t"
+            "movq %rdi, current_top(%rip)\n\t"
+            "movq $12, %rax\n\t"
+            "syscall\n\t");
     }
 
     // divide o bloco, caso tenha mais bytes
@@ -73,21 +93,4 @@ int liberaMem(void *bloco)
         return 0;
     }
     return 1;
-}
-
-void printHeap(void)
-{
-    unsigned char *aux_ptr = initial_top;
-    long long counter = 0;
-    while (aux_ptr < (unsigned char *)current_top)
-    {
-        if ((counter % 8) == 0)
-        {
-            printf("\n%p : ", aux_ptr);
-        }
-        printf("0x%02x ", *(aux_ptr));
-        aux_ptr++;
-        counter++;
-    }
-    printf("\n");
 }
