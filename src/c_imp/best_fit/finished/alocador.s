@@ -31,6 +31,7 @@ iniciaAlocador:
 	popq	%rbp
 	ret
 
+
 	.size	iniciaAlocador, .-iniciaAlocador
 	.globl	finalizaAlocador
 	.type	finalizaAlocador, @function
@@ -50,90 +51,101 @@ finalizaAlocador:
 alocaMem:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	movq	%rdi, -40(%rbp)
+	movq	%rdi, -56(%rbp)
 	movq	initial_top(%rip), %rax
+	movq	%rax, -40(%rbp)
+	movq	current_top(%rip), %rax
+	movq	%rax, -32(%rbp)
+	movabsq	$9223372036854775807, %rax
 	movq	%rax, -24(%rbp)
-	jmp	whileIf
-if1:
-	movq	-24(%rbp), %rax
+	jmp	while
+whileCont:
+	movq	-40(%rbp), %rax
 	movq	1(%rax), %rax
-	movq	%rax, -16(%rbp)
-	movq	-24(%rbp), %rax
+	movq	%rax, -8(%rbp)
+	movq	-40(%rbp), %rax
 	movzbl	(%rax), %eax
 	testb	%al, %al
 	jne	fimIf1
-	movq	-16(%rbp), %rax
-	cmpq	-40(%rbp), %rax
-	jge	fimWhile
+	movq	-8(%rbp), %rax
+	cmpq	-56(%rbp), %rax
+	jl	fimIf1
+	movq	-8(%rbp), %rax
+	cmpq	-24(%rbp), %rax
+	jge	fimIf1
+	movq	-40(%rbp), %rax
+	movq	%rax, -32(%rbp)
+	movq	-8(%rbp), %rax
+	movq	%rax, -24(%rbp)
 fimIf1:
-	movq	-16(%rbp), %rax
+	movq	-8(%rbp), %rax
 	addq	$9, %rax
-	addq	%rax, -24(%rbp)
-whileIf:
+	addq	%rax, -40(%rbp)
+while:
 	movq	current_top(%rip), %rax
-	cmpq	%rax, -24(%rbp)
-	jb	if1
-	jmp	fimWhile
-fimWhile:
+	cmpq	%rax, -40(%rbp)
+	jb	whileCont
+	movq	-32(%rbp), %rax
+	movq	%rax, -40(%rbp)
 	movq	current_top(%rip), %rax
-	cmpq	%rax, -24(%rbp)
+	cmpq	%rax, -40(%rbp)
 	jne	fimIf2
-	movq 	$12, %rax
-	movq 	$0, %rdi
+	movq $12, %rax
+	movq $0, %rdi
 	syscall
-	movq 	%rax, %rdi
-	addq 	-40(%rbp), %rdi
-	addq 	$9, %rdi
-	movq 	%rdi, current_top(%rip)
-	movq 	$12, %rax
+	movq %rax, %rdi
+	addq -56(%rbp), %rdi
+	addq $9, %rdi
+	movq %rdi, current_top(%rip)
+	movq $12, %rax
 	syscall
 fimIf2:
-	movq	-24(%rbp), %rax
+	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
-	movq	-40(%rbp), %rdx
+	movq	-56(%rbp), %rdx
 	addq	$9, %rdx
 	cmpq	%rdx, %rax
 	jle	else
-	movq	-24(%rbp), %rax
+	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
-	subq	-40(%rbp), %rax
+	subq	-56(%rbp), %rax
 	subq	$9, %rax
-	movq	%rax, -8(%rbp)
-	movq	-40(%rbp), %rax
+	movq	%rax, -16(%rbp)
+	movq	-56(%rbp), %rax
 	leaq	9(%rax), %rdx
-	movq	-24(%rbp), %rax
+	movq	-40(%rbp), %rax
 	addq	%rdx, %rax
 	movb	$0, (%rax)
-	movq	-40(%rbp), %rax
+	movq	-56(%rbp), %rax
 	leaq	10(%rax), %rdx
-	movq	-24(%rbp), %rax
+	movq	-40(%rbp), %rax
 	addq	%rax, %rdx
-	movq	-8(%rbp), %rax
+	movq	-16(%rbp), %rax
 	movq	%rax, (%rdx)
 	jmp	fimElse
 else:
-	movq	-24(%rbp), %rax
+	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
-	cmpq	%rax, -40(%rbp)
+	cmpq	%rax, -56(%rbp)
 	jge	fimElse
-	movq	-24(%rbp), %rax
+	movq	-40(%rbp), %rax
 	movq	1(%rax), %rax
-	movq	%rax, -40(%rbp)
+	movq	%rax, -56(%rbp)
 fimElse:
-	movq	-24(%rbp), %rax
+	movq	-40(%rbp), %rax
 	movb	$1, (%rax)
-	addq	$1, -24(%rbp)
-	movq	-24(%rbp), %rax
-	movq	-40(%rbp), %rdx
+	addq	$1, -40(%rbp)
+	movq	-40(%rbp), %rax
+	movq	-56(%rbp), %rdx
 	movq	%rdx, (%rax)
-	addq	$8, -24(%rbp)
-	movq	-24(%rbp), %rax
+	addq	$8, -40(%rbp)
+	movq	-40(%rbp), %rax
 	popq	%rbp
 	ret
-
+	
 	.size	alocaMem, .-alocaMem
 	.globl	liberaMem
 	.type	liberaMem, @function
