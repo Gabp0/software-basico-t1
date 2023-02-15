@@ -2,6 +2,7 @@ alocador
 firstFit
 nextFit
 bextFit
+alocacaoConsecutiva
 
 # Prerequisites
 *.d
