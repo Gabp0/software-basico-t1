@@ -47,16 +47,17 @@ void *alocaMem(long long num_bytes)
     // se nao achou, aloca um novo
     if (aux_ptr == current_top)
     {
-        current_top = sbrk(num_bytes + 9) + num_bytes + 9;
-        // __asm__(
-        //     "movq $12, %rax\n\t"
-        //     "movq $0, %rdi\n\t"
-        //     "syscall\n\t"
-        //     "movq %rax, %rdi\n\t"
-        //     "addq -40(%rbp), %rdi\n\t"
-        //     "addq $9, %rdi\n\t"
-        //     "movq $12, %rax\n\t"
-        //     "syscall\n\t");
+        // current_top = sbrk(num_bytes + 9) + num_bytes + 9;
+        __asm__(
+            "movq $12, %rax\n\t"
+            "movq $0, %rdi\n\t"
+            "syscall\n\t"
+            "movq %rax, %rdi\n\t"
+            "addq -40(%rbp), %rdi\n\t"
+            "addq $9, %rdi\n\t"
+            "movq %rdi, current_top(%rip)\n\t"
+            "movq $12, %rax\n\t"
+            "syscall\n\t");
     }
 
     // divide o bloco, caso tenha mais bytes
