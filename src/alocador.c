@@ -27,31 +27,31 @@ void *firstFit(long long num_bytes)
     // procura por um bloco vazio com um tamanho >= a num_bytes
     while (aux_ptr < (char *)current_top)
     {
-        int current_block_size = *((int *)(aux_ptr + 1));
+        long long current_block_size = *((long long *)(aux_ptr + 1));
         if ((*aux_ptr == 0) && (current_block_size >= num_bytes))
         {
             break;
         }
-        aux_ptr += current_block_size + 5;
+        aux_ptr += current_block_size + 9;
     }
 
     // se nao achou, aloca um novo
     if (aux_ptr == current_top)
     {
-        sbrk(num_bytes + 5);
+        sbrk(num_bytes + 9);
     }
     // divide o bloco, caso tenha mais bytes
-    else if (*((int *)(aux_ptr + 1)) > num_bytes)
+    else if (*((long long *)(aux_ptr + 1)) > num_bytes)
     {
-        unsigned int size = *(int *)(aux_ptr + 1) - num_bytes - 5;
-        *((int *)(aux_ptr + num_bytes + 5)) = 0;
-        *((int *)(aux_ptr + num_bytes + 6)) = size;
+        long long size = *(long long *)(aux_ptr + 1) - num_bytes - 9;
+        *((char *)(aux_ptr + num_bytes + 9)) = 0;
+        *((long long *)(aux_ptr + num_bytes + 10)) = size;
     }
 
     *aux_ptr = 1; // bloco ocupado
     aux_ptr++;
-    *((int *)aux_ptr) = num_bytes; // tamanho do bloco
-    aux_ptr += 4;                  // inicio dos conteudo
+    *((long long *)aux_ptr) = num_bytes; // tamanho do bloco
+    aux_ptr += 8;                        // inicio dos conteudo
 
     return aux_ptr;
 }
@@ -63,36 +63,36 @@ void *bestFit(long long num_bytes)
 
     // procura pelo menor bloco vazio com um tamanho >= a num_bytes
     void *best_ptr = current_top;
-    int best_size = __INT32_MAX__;
+    long long best_size = __LONG_LONG_MAX__;
     while (aux_ptr < (char *)current_top)
     {
-        int current_block_size = *((int *)(aux_ptr + 1));
+        long long current_block_size = *((long long *)(aux_ptr + 1));
         if (((*aux_ptr) == 0) && (current_block_size >= num_bytes) && (current_block_size < best_size))
         {
             best_ptr = aux_ptr;
             best_size = current_block_size;
         }
-        aux_ptr += current_block_size + 5;
+        aux_ptr += current_block_size + 9;
     }
     aux_ptr = best_ptr;
 
     // se nao achou, aloca um novo
     if (aux_ptr == current_top)
     {
-        sbrk(num_bytes + 5);
+        sbrk(num_bytes + 9);
     }
     // divide o bloco, caso tenha mais bytes
-    else if (*((int *)(aux_ptr + 1)) > num_bytes)
+    else if (*((long long *)(aux_ptr + 1)) > num_bytes)
     {
-        unsigned int size = *(int *)(aux_ptr + 1) - num_bytes - 5;
-        *((int *)(aux_ptr + num_bytes + 5)) = 0;
-        *((int *)(aux_ptr + num_bytes + 6)) = size;
+        long long size = *(long long *)(aux_ptr + 1) - num_bytes - 9;
+        *((long long *)(aux_ptr + num_bytes + 9)) = 0;
+        *((long long *)(aux_ptr + num_bytes + 10)) = size;
     }
 
     *aux_ptr = 1; // bloco ocupado
     aux_ptr++;
-    *((int *)aux_ptr) = num_bytes; // tamanho do bloco
-    aux_ptr += 4;                  // inicio dos conteudo
+    *((long long *)aux_ptr) = num_bytes; // tamanho do bloco
+    aux_ptr += 8;                        // inicio dos conteudo
 
     return aux_ptr;
 }
@@ -104,16 +104,16 @@ void *nextFit(long long num_bytes)
 
     // procura por um bloco vazio com um tamanho >= a num_bytes a partir do ultimo alocado
     short found = 0;
-    int search_range = current_top - initial_top;
+    long long search_range = current_top - initial_top;
     for (size_t i = 0; i < search_range; i++)
     {
-        int current_block_size = *((int *)(aux_ptr + 1));
+        long long current_block_size = *((long long *)(aux_ptr + 1));
         if ((*aux_ptr == 0) && (current_block_size >= num_bytes))
         {
             found = 1;
             break;
         }
-        aux_ptr += current_block_size + 5;
+        aux_ptr += current_block_size + 9;
 
         if (aux_ptr >= (char *)current_top) // rotaciona a lista
         {
@@ -125,36 +125,36 @@ void *nextFit(long long num_bytes)
     if (!found)
     {
         aux_ptr = current_top;
-        sbrk(num_bytes + 5);
+        sbrk(num_bytes + 9);
     }
     // divide o bloco, caso tenha mais bytes
-    else if (*((int *)(aux_ptr + 1)) > num_bytes)
+    else if (*((long long *)(aux_ptr + 1)) > num_bytes)
     {
-        unsigned int size = *(int *)(aux_ptr + 1) - num_bytes - 5;
-        *((int *)(aux_ptr + num_bytes + 5)) = 0;
-        *((int *)(aux_ptr + num_bytes + 6)) = size;
+        long long size = *(long long *)(aux_ptr + 1) - num_bytes - 9;
+        *((long long *)(aux_ptr + num_bytes + 9)) = 0;
+        *((long long *)(aux_ptr + num_bytes + 10)) = size;
     }
 
     last_allocated = aux_ptr;
 
     *aux_ptr = 1; // bloco ocupado
     aux_ptr++;
-    *((int *)aux_ptr) = num_bytes; // tamanho do bloco
-    aux_ptr += 4;                  // inicio dos conteudo
+    *((long long *)aux_ptr) = num_bytes; // tamanho do bloco
+    aux_ptr += 8;                        // inicio dos conteudo
 
     return aux_ptr;
 }
 
 int liberaMem(void *bloco)
 {
-    *((char *)(bloco - 5)) = 0;
+    *((char *)(bloco - 9)) = 0;
 }
 
 void printHeap(void)
 {
-    char *aux_ptr = initial_top;
-    char *current_top = sbrk(0);
-    int counter = 0;
+    unsigned char *aux_ptr = initial_top;
+    unsigned char *current_top = sbrk(0);
+    long long counter = 0;
     while (aux_ptr < current_top)
     {
         if ((counter % 8) == 0)
