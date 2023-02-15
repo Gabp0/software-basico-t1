@@ -11,59 +11,35 @@ int main(int argc, char const *argv[])
     printf("\n"); // coloca o buffer do printf antes do bloco do alocador
     iniciaAlocador();
 
-    // for (i = 0; i < 100; i++)
-    // {
-    //     a = alocaMem(100);
-    //     strcpy(a, " TESTE ");
-
-    //     printf("%p %s\n", a, (char *)a);
-
-    //     liberaMem(a);
-    // }
-
-    a = alocaMem(100);
+    a = nextFit(200);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     liberaMem(a);
+    printHeap();
 
-    b = alocaMem(60);
-    strcpy(b, " TESTE ");
-    printf("%p %s\n", b, (char *)b);
-
-    a = alocaMem(30);
+    a = nextFit(100);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
+    printHeap();
+
+    b = nextFit(30);
+    strcpy(b, " TESTE ");
+    printf("%p %s\n", b, (char *)b);
+    printHeap();
     liberaMem(a);
     liberaMem(b);
 
-    a = alocaMem(30);
+    a = nextFit(30);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
-    liberaMem(a);
+    printHeap();
+
+    a = nextFit(90);
+    strcpy(a, " TESTE ");
+    printf("%p %s\n", a, (char *)a);
+    printHeap();
 
     finalizaAlocador();
-
-    // a = firstFit(100);
-    // strcpy(a, " TESTE ");
-    // printf("%p %s\n", a, (char *)a);
-    // liberaMem(a);
-
-    // a = firstFit(30);
-    // strcpy(a, " TESTE ");
-    // printf("%p %s\n", a, (char *)a);
-    // liberaMem(a);
-
-    // a = firstFit(60);
-    // strcpy(a, " TESTE ");
-    // printf("%p %s\n", a, (char *)a);
-    // liberaMem(a);
-
-    // a = firstFit(100);
-    // strcpy(a, " TESTE ");
-    // printf("%p %s\n", a, (char *)a);
-    // liberaMem(a);
-
-    // finalizaAlocador();
 
     return 0;
 }
