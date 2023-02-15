@@ -1,72 +1,53 @@
 #include "alocador.h"
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 
 void *initial_top;
+void *current_top;
 
 void iniciaAlocador(void)
 // salva o topo inicial da heap
 {
-    // initial_top = sbrk(0);
-    __asm__(
-        "movq $12, %rax\n\t"
-        "movq $0, %rdi\n\t"
-        "syscall\n\t"
-        "movq %rax, initial_top(%rip)\n\t");
+    initial_top = sbrk(0);
+    current_top = initial_top;
 }
 
 void finalizaAlocador(void)
 // restaura o topo da heap inicial
 {
-    // brk(initial_top);
-    __asm__(
-        "movq initial_top(%rip), %rax\n\t"
-        "movq %rax, %rdi\n\t"
-        "movq $12, %rax\n\t"
-        "syscall\n\t");
+    brk(initial_top);
 }
 
 void *alocaMem(long long num_bytes)
 {
-    // void *current_top = sbrk(0);
-    void *current_top; // = 0;
-    __asm__(
-        "movq $12, %rax\n\t"
-        "movq $0, %rdi\n\t"
-        "syscall\n\t"
-        "movq %rax, -24(%rbp)\n\t");
     char *aux_ptr = initial_top;
 
-    // procura por um bloco vazio com um tamanho >= a num_bytes
+    // procura pelo menor bloco vazio com um tamanho >= a num_bytes
+    void *best_ptr = current_top;
+    long long best_size = __LONG_LONG_MAX__;
     while (aux_ptr < (char *)current_top)
     {
         long long current_block_size = *((long long *)(aux_ptr + 1));
-        if ((*aux_ptr == 0) && (current_block_size >= num_bytes))
+        if (((*aux_ptr) == 0) && (current_block_size >= num_bytes) && (current_block_size < best_size))
         {
-            break;
+            best_ptr = aux_ptr;
+            best_size = current_block_size;
         }
         aux_ptr += current_block_size + 9;
     }
+    aux_ptr = best_ptr;
 
     // se nao achou, aloca um novo
     if (aux_ptr == current_top)
     {
-        // sbrk(num_bytes + 9);
-        __asm__(
-        "movq $12, %rax\n\t"
-        "movq $0, %rdi\n\t"
-        "syscall\n\t"
-        "movq %rax, %rdi\n\t"
-        "addq -40(%rbp), %rdi\n\t"
-        "addq $9, %rdi\n\t"
-        "movq $12, %rax\n\t"
-        "syscall\n\t");
+        current_top = sbrk(num_bytes + 9) + num_bytes + 9;
     }
     // divide o bloco, caso tenha mais bytes
     else if (*((long long *)(aux_ptr + 1)) > num_bytes)
     {
         long long size = *(long long *)(aux_ptr + 1) - num_bytes - 9;
-        *((char *)(aux_ptr + num_bytes + 9)) = 0;
+        *(aux_ptr + num_bytes + 9) = 0;
         *((long long *)(aux_ptr + num_bytes + 10)) = size;
     }
 
@@ -80,24 +61,19 @@ void *alocaMem(long long num_bytes)
 
 int liberaMem(void *bloco)
 {
-    *((char *)(bloco - 5)) = 0;
+    if (bloco)
+    {
+        *((char *)(bloco - 9)) = 0;
+        return 0;
+    }
+    return 1;
 }
 
 void printHeap(void)
 {
     unsigned char *aux_ptr = initial_top;
-    unsigned char *current_top;// = sbrk(0);
-    __asm__(
-        "movq $12, %rax\n\t"
-        "movq $0, %rdi\n\t"
-        "syscall\n\t"
-        "movq %rax, -8(%rbp)\n\t");
-        
     long long counter = 0;
-
-    printf("%p : %p", aux_ptr, current_top);
-
-    while (aux_ptr < current_top)
+    while (aux_ptr < (unsigned char *)current_top)
     {
         if ((counter % 8) == 0)
         {

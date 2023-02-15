@@ -1,4 +1,7 @@
 alocador
+firstFit
+nextFit
+bextFit
 
 # Prerequisites
 *.d
