@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 {
     void *a;
        
-    printf("\0"); // coloca o buffer do printf antes do alocador
+    printf("\n"); // coloca o buffer do printf antes do alocador
     iniciaAlocador();
 
     int i;
