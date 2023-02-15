@@ -3,6 +3,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+void printHeap(void)
+{
+    unsigned char *aux_ptr = initial_top;
+    long long counter = 0;
+
+    while (aux_ptr < (unsigned char *)current_top)
+    {
+        if ((counter % 8) == 0)
+        {
+            printf("\n%p : ", aux_ptr);
+        }
+        printf("0x%02x ", *(aux_ptr));
+        aux_ptr++;
+        counter++;
+    }
+    printf("\n");
+}
+
 int main(int argc, char const *argv[])
 {
     void *a;
