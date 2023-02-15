@@ -3,9 +3,9 @@
 
 void iniciaAlocador(void);
 void finalizaAlocador(void);
-void *firstFit(int num_bytes);
-void *bestFit(int num_bytes);
-void *nextFit(int num_bytes);
+void *firstFit(long long num_bytes);
+void *bestFit(long long num_bytes);
+void *nextFit(long long num_bytes);
 int liberaMem(void *bloco);
 void printHeap(void);
 

@@ -19,7 +19,7 @@ void finalizaAlocador(void)
     brk(initial_top);
 }
 
-void *firstFit(long long int num_bytes)
+void *firstFit(long long num_bytes)
 {
     void *current_top = sbrk(0);
     char *aux_ptr = initial_top;
@@ -56,7 +56,7 @@ void *firstFit(long long int num_bytes)
     return aux_ptr;
 }
 
-void *bestFit(int num_bytes)
+void *bestFit(long long num_bytes)
 {
     void *current_top = sbrk(0);
     char *aux_ptr = initial_top;
@@ -97,7 +97,7 @@ void *bestFit(int num_bytes)
     return aux_ptr;
 }
 
-void *nextFit(int num_bytes)
+void *nextFit(long long num_bytes)
 {
     void *current_top = sbrk(0);
     char *aux_ptr = last_allocated;
