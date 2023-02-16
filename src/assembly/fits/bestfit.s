@@ -175,26 +175,26 @@ liberaMem:
 imprimeMapa:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	subq	$32, %rsp
+	# subq	$32, %rsp
 
 	movq	INITIAL_TOP, %rax	# aux_ptr = initial_top
-	movq	%rax, -24(%rbp)
+	movq	%rax, -16(%rbp)
 
-	jmp	fimWhileImp
+	jmp	whileForImp
 
 whileImp:
-	movq	-24(%rbp), %rax
+	movq	-16(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -8(%rbp)
 
 	# print informacoes gerenciais
-	# movq	$1, %rax 
-	# movq 	$1, %rdi 
-	# movq 	(block_info_string), %rsi
-	# movq	$9, %rdx  
-	# syscall 
+	movq	$1, %rax 
+	movq 	$1, %rdi 
+	movq 	$block_info_string, %rsi
+	movq	$9, %rdx  
+	syscall 
 
-	movq	-24(%rbp), %rax	# if (*aux_ptr == 0)
+	movq	-16(%rbp), %rax	# if (*aux_ptr == 0)
 	movzbl	(%rax), %eax
 	testb	%al, %al
 	jne elseImp
@@ -204,30 +204,30 @@ whileImp:
 elseImp:
 	movb	$43, -25(%rbp)	# c = '+'
 fimIfImp:
-	movq	$0, -16(%rbp)	# i = 0
+	movq	$0, -24(%rbp)	# i = 0
 	jmp	fimForImp
 for:
 	# print conteudo do bloco
-	# movq	$1, %rax 
-	# movq 	$1, %rdi 
-	# movq 	%rbp, %rsi
-	# subq 	$25, %rsi
-	# movq	$1, %rdx  
-	# syscall 
+	movq	$1, %rax 
+	movq 	$1, %rdi 
+	movq 	%rbp, %rsi
+	subq 	$25, %rsi
+	movq	$1, %rdx  
+	syscall 
 
-	addq	$1, -16(%rbp)	# i++
+	addq	$1, -24(%rbp)	# i++
 fimForImp:
 	movq	-8(%rbp), %rax
-	cmpq	%rax, -16(%rbp) # i < current_block_size
+	cmpq	%rax, -24(%rbp) # i < current_block_size
 	jb	for	
 
 	movq	-8(%rbp), %rax
 	addq	$9, %rax		# aux_ptr += current_block_size + 9
-	addq	%rax, -24(%rbp)
+	addq	%rax, -16(%rbp)
 
-fimWhileImp:
+whileForImp:
 	movq	CURRENT_TOP, %rax
-	cmpq	%rax, -24(%rbp)
+	cmpq	%rax, -16(%rbp)
 	jb	whileImp
 
 	# print conteudo do bloco
