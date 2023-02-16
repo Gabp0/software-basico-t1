@@ -111,45 +111,54 @@ fimIf2:
 	cmpq	%rdx, %rax	# *(aux_ptr + 1) > (num_bytes + 9)
 	jle	else
 
-	movq	-40(%rbp), %rax
+	# fragmenta o bloco
+	movq	-40(%rbp), %rax	
 	addq	$1, %rax
 	movq	(%rax), %rax
 	subq	-56(%rbp), %rax
-	subq	$9, %rax
+	subq	$9, %rax 
+	movq	%rax, -16(%rbp) # long long size = tamanho do bloco novo
 
-	movq	%rax, -16(%rbp)
 	movq	-56(%rbp), %rax
 	leaq	9(%rax), %rdx
 	movq	-40(%rbp), %rax
 	addq	%rdx, %rax
 	movb	$0, (%rax)
+	movq	-56(%rbp), %rax # bloco desocupado
 
-	movq	-56(%rbp), %rax
 	leaq	10(%rax), %rdx
 	movq	-40(%rbp), %rax
 	addq	%rax, %rdx
 	movq	-16(%rbp), %rax
-	movq	%rax, (%rdx)
+	movq	%rax, (%rdx)	# header recebe tamanho do bloco novo
+
 	jmp	fimElse
 
 else:
-	movq	-40(%rbp), %rax
+	movq	-40(%rbp), %rax	
 	addq	$1, %rax
 	movq	(%rax), %rax
-	cmpq	%rax, -56(%rbp)
-	jge	fimElse
-	movq	-40(%rbp), %rax
+	cmpq	%rax, -56(%rbp) 
+
+	jge	fimElse 
+	# conteudo do else
+	movq	-40(%rbp), %rax  # altera o numero de bytes do bloco novo
 	movq	1(%rax), %rax
 	movq	%rax, -56(%rbp)
+
 fimElse:
+	# header do bloco novo
 	movq	-40(%rbp), %rax
-	movb	$1, (%rax)
+	movb	$1, (%rax)	# bloco ocupado
+
 	addq	$1, -40(%rbp)
 	movq	-40(%rbp), %rax
 	movq	-56(%rbp), %rdx
-	movq	%rdx, (%rax)
+	movq	%rdx, (%rax)	# numero de bytes
+
 	addq	$8, -40(%rbp)
-	movq	-40(%rbp), %rax
+	movq	-40(%rbp), %rax	# atualiza o aux_ptr
+
 	popq	%rbp
 	ret
 	
@@ -244,42 +253,51 @@ whileForImp:
 desfragmenta:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	movq	INITIAL_TOP, %rax
-	movq	%rax, -32(%rbp)
-	jmp	.L4
-.L6:
+	movq	INITIAL_TOP, %rax 
+	movq	%rax, -32(%rbp)  # cur_ptr = initial_top
+
+	jmp	whileDefrag
+whileContDefrag:
 	movq	-32(%rbp), %rax
-	movq	1(%rax), %rax
-	movq	%rax, -24(%rbp)
+	movq	1(%rax), %rax	
+	movq	%rax, -24(%rbp)	# current_block_size
 	movq	-24(%rbp), %rax
+
 	leaq	9(%rax), %rdx
 	movq	-32(%rbp), %rax
 	addq	%rdx, %rax
 	movq	%rax, -16(%rbp)
-	movq	-16(%rbp), %rax
+	movq	-16(%rbp), %rax # next_node = cur_ptr + current_block_size + 9
+
 	movzbl	(%rax), %eax
 	testb	%al, %al
-	jne	.L5
+	jne	elseDeFrag	# *next_node == 0
+
 	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -16(%rbp)
-	jnb	.L5
+	jnb	elseDeFrag	# next_node < current_top
+
 	movq	-16(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -8(%rbp)
 	movq	-24(%rbp), %rdx
-	movq	-8(%rbp), %rax
+	movq	-8(%rbp), %rax	# next_block_size
 	addq	%rax, %rdx
+
 	movq	-32(%rbp), %rax
 	addq	$1, %rax
 	addq	$9, %rdx
-	movq	%rdx, (%rax)
-	jmp	.L4
-.L5:
+	movq	%rdx, (%rax)	# cur_ptr + 1 = current_block_size + next_block_size + 0
+	jmp	whileDefrag
+
+elseDeFrag:
 	movq	-16(%rbp), %rax
-	movq	%rax, -32(%rbp)
-.L4:
+	movq	%rax, -32(%rbp)	 # cur_ptr = next_node
+
+whileDefrag:	# while cur_ptr < current_top
 	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -32(%rbp)
-	jb	.L6
+	jb	whileContDefrag
+
 	popq	%rbp
 	ret
