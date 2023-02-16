@@ -5,10 +5,6 @@
 
 void *initial_top;
 void *current_top;
-__asm__(
-    ".section    .data\n\t"
-    "block_info_string: .string \"#########\"\n\t"
-);
 
 void iniciaAlocador(void)
 // salva o topo inicial da heap
@@ -31,6 +27,27 @@ void finalizaAlocador(void)
         "movq %rax, %rdi\n\t"
         "movq $12, %rax\n\t"
         "syscall\n\t");
+}
+
+void desfragmenta(void)
+{
+    char *cur_ptr = initial_top;
+
+    while ((void *)cur_ptr < current_top)
+    {
+        long long current_block_size = *((long long *)(cur_ptr + 1));
+
+        char *next_node = cur_ptr + current_block_size + 9;
+        if ((*(next_node) == 0) && ((void *)next_node < current_top))
+        {
+            long long next_block_size = *((long long *)(next_node + 1));
+            *((long long *)(cur_ptr + 1)) = current_block_size + next_block_size + 9;
+        }
+        else
+        {
+            cur_ptr = next_node;
+        }
+    }
 }
 
 void *alocaMem(long long num_bytes)
@@ -94,6 +111,7 @@ int liberaMem(void *bloco)
     if (bloco)
     {
         *((char *)(bloco - 9)) = 0;
+        desfragmenta();
         return 0;
     }
     return 1;
@@ -108,7 +126,7 @@ void imprimeMapa(void)
     {
         current_block_size = *((long long *)(aux_ptr + 1));
 
-        // printf("#########");
+        printf("#########");
         // __asm__(
         //     "movq	$1, %rax \n\t"
         //     "movq 	$1, %rdi \n\t"
@@ -128,21 +146,21 @@ void imprimeMapa(void)
 
         for (size_t i = 0; i < current_block_size; i++)
         {
-            // printf("%c", c);
-            __asm__(
-                "movq	$1, %rax \n\t"
-                "movq 	$1, %rdi \n\t"
-                "movq 	%rbp, %rsi\n\t"
-                "subq 	$25, %rsi\n\t"
-                "movq	$1, %rdx  \n\t"
-                "syscall \n\t");
+            printf("%c", c);
+            //__asm__(
+            //    "movq	$1, %rax \n\t"
+            //    "movq 	$1, %rdi \n\t"
+            //    "movq 	%rbp, %rsi\n\t"
+            //    "subq 	$25, %rsi\n\t"
+            //    "movq	$1, %rdx  \n\t"
+            //    "syscall \n\t");
         }
 
-        // aux_ptr += current_block_size + 9;
-        __asm__(
-            "movq	-8(%rbp), %rax\n\t"
-            "addq	$9, %rax\n\t"
-            "addq	%rax, -16(%rbp)\n\t");
+        aux_ptr += current_block_size + 9;
+        //__asm__(
+        //    "movq	-8(%rbp), %rax\n\t"
+        //    "addq	$9, %rax\n\t"
+        //    "addq	%rax, -16(%rbp)\n\t");
     }
-    printf('\n');
+    printf("\n");
 }

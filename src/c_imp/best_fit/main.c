@@ -27,7 +27,7 @@ int main(int argc, char const *argv[])
     printf("\n"); // coloca o buffer do printf antes do bloco do alocador
     iniciaAlocador();
 
-    a = alocaMem(100);
+    a = alocaMem(101);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     liberaMem(a);
@@ -36,13 +36,14 @@ int main(int argc, char const *argv[])
     b = alocaMem(60);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
-    imprimeMapa();
+    imprimeMapa();      
 
     a = alocaMem(30);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     imprimeMapa();
     liberaMem(a);
+    imprimeMapa();
     liberaMem(b);
 
     a = alocaMem(10);
@@ -54,8 +55,12 @@ int main(int argc, char const *argv[])
     strcpy(b, " TESTE ");
     printf("%p %s\n", b, (char *)b);
     imprimeMapa();
+    liberaMem(a);
+    liberaMem(b);
+    imprimeMapa();
 
     finalizaAlocador();
+
 
     return 0;
 }

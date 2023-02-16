@@ -1,24 +1,7 @@
 	.file	"alocador.c"
 	.text
-	.globl	initial_top
-	.bss
-	.align 8
-	.type	initial_top, @object
-	.size	initial_top, 8
-initial_top:
-	.zero	8
-	.globl	current_top
-	.align 8
-	.type	current_top, @object
-	.size	current_top, 8
-current_top:
-	.zero	8
-#APP
-	.section    .data
-	block_info_string: .string "#########"
-	
-#NO_APP
-	.text
+	.comm	initial_top,8,8
+	.comm	current_top,8,8
 	.globl	iniciaAlocador
 	.type	iniciaAlocador, @function
 iniciaAlocador:
@@ -31,7 +14,7 @@ iniciaAlocador:
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 #APP
-# 17 "alocador.c" 1
+# 13 "alocador.c" 1
 	movq $12, %rax
 	movq $0, %rdi
 	syscall
@@ -60,7 +43,7 @@ finalizaAlocador:
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 #APP
-# 29 "alocador.c" 1
+# 25 "alocador.c" 1
 	movq initial_top(%rip), %rax
 	movq %rax, %rdi
 	movq $12, %rax
@@ -75,10 +58,66 @@ finalizaAlocador:
 	.cfi_endproc
 .LFE7:
 	.size	finalizaAlocador, .-finalizaAlocador
+	.globl	desfragmenta
+	.type	desfragmenta, @function
+desfragmenta:
+.LFB8:
+	.cfi_startproc
+	endbr64
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	movq	initial_top(%rip), %rax
+	movq	%rax, -32(%rbp)
+	jmp	.L4
+.L6:
+	movq	-32(%rbp), %rax
+	movq	1(%rax), %rax
+	movq	%rax, -24(%rbp)
+	movq	-24(%rbp), %rax
+	leaq	9(%rax), %rdx
+	movq	-32(%rbp), %rax
+	addq	%rdx, %rax
+	movq	%rax, -16(%rbp)
+	movq	-16(%rbp), %rax
+	movzbl	(%rax), %eax
+	testb	%al, %al
+	jne	.L5
+	movq	current_top(%rip), %rax
+	cmpq	%rax, -16(%rbp)
+	jnb	.L5
+	movq	-16(%rbp), %rax
+	movq	1(%rax), %rax
+	movq	%rax, -8(%rbp)
+	movq	-24(%rbp), %rdx
+	movq	-8(%rbp), %rax
+	addq	%rax, %rdx
+	movq	-32(%rbp), %rax
+	addq	$1, %rax
+	addq	$9, %rdx
+	movq	%rdx, (%rax)
+	jmp	.L4
+.L5:
+	movq	-16(%rbp), %rax
+	movq	%rax, -32(%rbp)
+.L4:
+	movq	current_top(%rip), %rax
+	cmpq	%rax, -32(%rbp)
+	jb	.L6
+	nop
+	nop
+	popq	%rbp
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE8:
+	.size	desfragmenta, .-desfragmenta
 	.globl	alocaMem
 	.type	alocaMem, @function
 alocaMem:
-.LFB8:
+.LFB9:
 	.cfi_startproc
 	endbr64
 	pushq	%rbp
@@ -93,40 +132,40 @@ alocaMem:
 	movq	%rax, -32(%rbp)
 	movabsq	$9223372036854775807, %rax
 	movq	%rax, -24(%rbp)
-	jmp	.L4
-.L6:
+	jmp	.L8
+.L10:
 	movq	-40(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -8(%rbp)
 	movq	-40(%rbp), %rax
 	movzbl	(%rax), %eax
 	testb	%al, %al
-	jne	.L5
+	jne	.L9
 	movq	-8(%rbp), %rax
 	cmpq	-56(%rbp), %rax
-	jl	.L5
+	jl	.L9
 	movq	-8(%rbp), %rax
 	cmpq	-24(%rbp), %rax
-	jge	.L5
+	jge	.L9
 	movq	-40(%rbp), %rax
 	movq	%rax, -32(%rbp)
 	movq	-8(%rbp), %rax
 	movq	%rax, -24(%rbp)
-.L5:
+.L9:
 	movq	-8(%rbp), %rax
 	addq	$9, %rax
 	addq	%rax, -40(%rbp)
-.L4:
+.L8:
 	movq	current_top(%rip), %rax
 	cmpq	%rax, -40(%rbp)
-	jb	.L6
+	jb	.L10
 	movq	-32(%rbp), %rax
 	movq	%rax, -40(%rbp)
 	movq	current_top(%rip), %rax
 	cmpq	%rax, -40(%rbp)
-	jne	.L7
+	jne	.L11
 #APP
-# 59 "alocador.c" 1
+# 76 "alocador.c" 1
 	movq $12, %rax
 	movq $0, %rdi
 	syscall
@@ -139,14 +178,14 @@ alocaMem:
 	
 # 0 "" 2
 #NO_APP
-.L7:
+.L11:
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
 	movq	-56(%rbp), %rdx
 	addq	$9, %rdx
 	cmpq	%rdx, %rax
-	jle	.L8
+	jle	.L12
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
@@ -164,17 +203,17 @@ alocaMem:
 	addq	%rax, %rdx
 	movq	-16(%rbp), %rax
 	movq	%rax, (%rdx)
-	jmp	.L9
-.L8:
+	jmp	.L13
+.L12:
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
 	cmpq	%rax, -56(%rbp)
-	jge	.L9
+	jge	.L13
 	movq	-40(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -56(%rbp)
-.L9:
+.L13:
 	movq	-40(%rbp), %rax
 	movb	$1, (%rax)
 	addq	$1, -40(%rbp)
@@ -187,39 +226,11 @@ alocaMem:
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
-.LFE8:
+.LFE9:
 	.size	alocaMem, .-alocaMem
 	.globl	liberaMem
 	.type	liberaMem, @function
 liberaMem:
-.LFB9:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movq	%rdi, -8(%rbp)
-	cmpq	$0, -8(%rbp)
-	je	.L12
-	movq	-8(%rbp), %rax
-	subq	$9, %rax
-	movb	$0, (%rax)
-	movl	$0, %eax
-	jmp	.L13
-.L12:
-	movl	$1, %eax
-.L13:
-	popq	%rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE9:
-	.size	liberaMem, .-liberaMem
-	.globl	imprimeMapa
-	.type	imprimeMapa, @function
-imprimeMapa:
 .LFB10:
 	.cfi_startproc
 	endbr64
@@ -228,76 +239,102 @@ imprimeMapa:
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
-	movq	initial_top(%rip), %rax
-	movq	%rax, -16(%rbp)
-	jmp	.L15
-.L20:
-	movq	-16(%rbp), %rax
-	movq	1(%rax), %rax
-	movq	%rax, -8(%rbp)
-	movq	-16(%rbp), %rax
-	movzbl	(%rax), %eax
-	testb	%al, %al
-	jne	.L16
-	movb	$45, -25(%rbp)
+	subq	$8, %rsp
+	movq	%rdi, -8(%rbp)
+	cmpq	$0, -8(%rbp)
+	je	.L16
+	movq	-8(%rbp), %rax
+	subq	$9, %rax
+	movb	$0, (%rax)
+	call	desfragmenta
+	movl	$0, %eax
 	jmp	.L17
 .L16:
-	movb	$43, -25(%rbp)
+	movl	$1, %eax
 .L17:
-	movq	$0, -24(%rbp)
-	jmp	.L18
-.L19:
-#APP
-# 132 "alocador.c" 1
-	movq	$1, %rax 
-	movq 	$1, %rdi 
-	movq 	%rbp, %rsi
-	subq 	$25, %rsi
-	movq	$1, %rdx  
-	syscall 
-	
-# 0 "" 2
-#NO_APP
-	addq	$1, -24(%rbp)
-.L18:
-	movq	-8(%rbp), %rax
-	cmpq	%rax, -24(%rbp)
-	jb	.L19
-#APP
-# 142 "alocador.c" 1
-	movq	-8(%rbp), %rax
-	addq	$9, %rax
-	addq	%rax, -16(%rbp)
-	
-# 0 "" 2
-#NO_APP
-.L15:
-	movq	current_top(%rip), %rax
-	cmpq	%rax, -16(%rbp)
-	jb	.L20
-	nop
-	nop
-	popq	%rbp
+	leave
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
 .LFE10:
+	.size	liberaMem, .-liberaMem
+	.section	.rodata
+.LC0:
+	.string	"#########"
+	.text
+	.globl	imprimeMapa
+	.type	imprimeMapa, @function
+imprimeMapa:
+.LFB11:
+	.cfi_startproc
+	endbr64
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$32, %rsp
+	movq	initial_top(%rip), %rax
+	movq	%rax, -24(%rbp)
+	jmp	.L19
+.L24:
+	movq	-24(%rbp), %rax
+	movq	1(%rax), %rax
+	movq	%rax, -8(%rbp)
+	leaq	.LC0(%rip), %rdi
+	movl	$0, %eax
+	call	printf@PLT
+	movq	-24(%rbp), %rax
+	movzbl	(%rax), %eax
+	testb	%al, %al
+	jne	.L20
+	movb	$45, -25(%rbp)
+	jmp	.L21
+.L20:
+	movb	$43, -25(%rbp)
+.L21:
+	movq	$0, -16(%rbp)
+	jmp	.L22
+.L23:
+	movsbl	-25(%rbp), %eax
+	movl	%eax, %edi
+	call	putchar@PLT
+	addq	$1, -16(%rbp)
+.L22:
+	movq	-8(%rbp), %rax
+	cmpq	%rax, -16(%rbp)
+	jb	.L23
+	movq	-8(%rbp), %rax
+	addq	$9, %rax
+	addq	%rax, -24(%rbp)
+.L19:
+	movq	current_top(%rip), %rax
+	cmpq	%rax, -24(%rbp)
+	jb	.L24
+	movl	$10, %edi
+	call	putchar@PLT
+	nop
+	leave
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE11:
 	.size	imprimeMapa, .-imprimeMapa
-	.ident	"GCC: (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0"
+	.ident	"GCC: (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0"
 	.section	.note.GNU-stack,"",@progbits
 	.section	.note.gnu.property,"a"
 	.align 8
-	.long	1f - 0f
-	.long	4f - 1f
-	.long	5
+	.long	 1f - 0f
+	.long	 4f - 1f
+	.long	 5
 0:
-	.string	"GNU"
+	.string	 "GNU"
 1:
 	.align 8
-	.long	0xc0000002
-	.long	3f - 2f
+	.long	 0xc0000002
+	.long	 3f - 2f
 2:
-	.long	0x3
+	.long	 0x3
 3:
 	.align 8
 4:
