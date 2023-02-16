@@ -104,3 +104,33 @@ void printHeap(void)
     }
     printf("\n");
 }
+
+void imprimeMapa(void)
+{
+    unsigned char *aux_ptr = initial_top;
+    char c;
+    long long current_block_size;
+    while (aux_ptr < (unsigned char *)current_top)
+    {
+        current_block_size = *((long long *)(aux_ptr + 1));
+
+        printf("#########");
+
+        if (*aux_ptr == 0)
+        {
+            c = '-';
+        }
+        else
+        {
+            c = '+';
+        }
+
+        for (size_t i = 0; i < current_block_size; i++)
+        {
+            printf("%c", c);
+        }
+
+        aux_ptr += current_block_size + 9;
+    }
+    printf("\n");
+}

@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         printf("%p %s \n", a, (char *)a);
         liberaMem(a);
     }
-    printHeap();
+    imprimeMapa();
 
     finalizaAlocador();
 
