@@ -28,7 +28,8 @@ void *alocaMem(long long num_bytes)
     short found = 0;
     if (aux_ptr != current_top)
     {
-        do {
+        do
+        {
             long long current_block_size = *((long long *)(aux_ptr + 1));
             if ((*aux_ptr == 0) && (current_block_size >= num_bytes))
             {
@@ -37,19 +38,29 @@ void *alocaMem(long long num_bytes)
             }
 
             aux_ptr += current_block_size + 9;
-            if (aux_ptr >= (char *) current_top)
+            if (aux_ptr >= (char *)current_top)
             {
                 aux_ptr = initial_top;
             }
 
         } while (aux_ptr != last_allocated);
     }
-    
+
     // se nao achou, aloca um novo
     if (!found)
     {
         aux_ptr = current_top;
-        current_top = sbrk(num_bytes + 9) + num_bytes + 9;
+        // current_top = sbrk(num_bytes + 9) + num_bytes + 9;
+        __asm__(
+            "movq $12, %rax\n\t"
+            "movq $0, %rdi\n\t"
+            "syscall\n\t"
+            "movq %rax, %rdi\n\t"
+            "addq -40(%rbp), %rdi\n\t"
+            "addq $9, %rdi\n\t"
+            "movq %rdi, current_top(%rip)\n\t"
+            "movq $12, %rax\n\t"
+            "syscall\n\t");
     }
 
     // divide o bloco, caso tenha mais bytes
@@ -83,21 +94,4 @@ int liberaMem(void *bloco)
         return 0;
     }
     return 1;
-}
-
-void printHeap(void)
-{
-    unsigned char *aux_ptr = initial_top;
-    long long counter = 0;
-    while (aux_ptr < (unsigned char *)current_top)
-    {
-        if ((counter % 8) == 0)
-        {
-            printf("\n%p : ", aux_ptr);
-        }
-        printf("0x%02x ", *(aux_ptr));
-        aux_ptr++;
-        counter++;
-    }
-    printf("\n");
 }

@@ -48,6 +48,17 @@ void *alocaMem(long long num_bytes)
     {
         long long bsize = (((long)(num_bytes / 4096)) + 1) * 4096;
         current_top = sbrk(bsize + 9) + bsize + 9;
+        // __asm__(
+        //     "movq   $12, %rax\n\t"
+        //     "movq   $0, %rdi\n\t"
+        //     "syscall\n\t"
+        //     "movq	%rax, %rdi\n\t"
+        //     "movq	-16(%rbp), %rax\n\t"
+        //     "addq	%rax, %rdi\n\t"
+        //     "addq	$9, %rdi\n\t"
+        //     "movq	%rdi, current_top(%rip)\n\t"
+        //     "movq	$12, %rax\n\t"
+        //     "syscall\n\t");
         *((long long *)(aux_ptr + 1)) = bsize;
     }
 
@@ -80,27 +91,4 @@ int liberaMem(void *bloco)
         return 0;
     }
     return 1;
-}
-
-void printHeap(void)
-{
-    unsigned char *aux_ptr = initial_top;
-    long long counter = 0;
-
-    while (aux_ptr < (unsigned char *)current_top)
-    {
-        if ((counter % 8) == 0)
-        {
-            printf("\n%p : ", aux_ptr);
-        }
-        printf("0x%02x ", *(aux_ptr));
-        aux_ptr++;
-        counter++;
-
-        if (counter > 200)
-        {
-            break;
-        }
-    }
-    printf("\n");
 }
