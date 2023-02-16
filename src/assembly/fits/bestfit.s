@@ -79,7 +79,7 @@ alocaMem:
 	addq	$9, %rax
 	addq	%rax, -40(%rbp)
 
-	while:	# aux_ptr < current_top
+	while:	# aux_ptr < CURRENT_TOP
 	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -40(%rbp)
 	jb	while1
@@ -169,14 +169,14 @@ imprimeMapa:
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$32, %rsp
-	movq	initial_top(%rip), %rax
+	movq	INITIAL_TOP, %rax
 	movq	%rax, -24(%rbp)
 	jmp	.L15
 .L20:
 	movq	-24(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -8(%rbp)
-	leaq	.LC0(%rip), %rax
+	leaq	.LC0, %rax
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	printf@PLT
@@ -204,7 +204,7 @@ imprimeMapa:
 	addq	$9, %rax
 	addq	%rax, -24(%rbp)
 .L15:
-	movq	current_top(%rip), %rax
+	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -24(%rbp)
 	jb	.L20
 	movl	$10, %edi

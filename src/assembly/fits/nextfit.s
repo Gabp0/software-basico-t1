@@ -1,16 +1,7 @@
-	.globl	initial_top
-	.globl	current_top
-	.globl	last_allocated
-	.section    .data
-
-initial_top: 
-	.quad	0
-
-current_top:
-	.quad	0
-
-last_allocated:
-	.quad	0
+.section    .data
+	INITIAL_TOP: .quad	0	# inicio da heap
+	CURRENT_TOP: .quad	0	# topo atual da heap
+	LAST_ALLOCATED:	.quad	0	# ultimo alocado
 
 	.section    .text
 	.globl	iniciaAlocador
@@ -20,11 +11,11 @@ iniciaAlocador:
 	movq 	$12, %rax
 	movq 	$0, %rdi
 	syscall
-	movq 	%rax, initial_top(%rip)
-	movq	initial_top(%rip), %rax
-	movq	%rax, last_allocated(%rip)
-	movq	initial_top(%rip), %rax
-	movq	%rax, current_top(%rip)
+	movq 	%rax, INITIAL_TOP
+	movq	INITIAL_TOP, %rax
+	movq	%rax, LAST_ALLOCATED
+	movq	INITIAL_TOP, %rax
+	movq	%rax, CURRENT_TOP
 	popq	%rbp
 	ret
 
@@ -32,7 +23,7 @@ iniciaAlocador:
 finalizaAlocador:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	movq 	initial_top(%rip), %rax
+	movq 	INITIAL_TOP, %rax
 	movq 	%rax, %rdi
 	movq 	$12, %rax
 	syscall
@@ -44,10 +35,10 @@ alocaMem:
 	pushq	%rbp
 	movq	%rsp, %rbp
 	movq	%rdi, -40(%rbp)
-	movq	last_allocated(%rip), %rax
+	movq	LAST_ALLOCATED, %rax
 	movq	%rax, -24(%rbp)
 	movw	$0, -26(%rbp)
-	movq	current_top(%rip), %rax
+	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -24(%rbp)
 	je	fimWhile
 whileCont:
@@ -67,19 +58,19 @@ if2:
 	movq	-16(%rbp), %rax
 	addq	$9, %rax
 	addq	%rax, -24(%rbp)
-	movq	current_top(%rip), %rax
+	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -24(%rbp)
 	jb	while
-	movq	initial_top(%rip), %rax
+	movq	INITIAL_TOP, %rax
 	movq	%rax, -24(%rbp)
 while:
-	movq	last_allocated(%rip), %rax
+	movq	LAST_ALLOCATED, %rax
 	cmpq	%rax, -24(%rbp)
 	jne	whileCont
 fimWhile:
 	cmpw	$0, -26(%rbp)
 	jne	fimIf3
-	movq	current_top(%rip), %rax
+	movq	CURRENT_TOP, %rax
 	movq	%rax, -24(%rbp)
 	movq $12, %rax
 	movq $0, %rdi
@@ -87,7 +78,7 @@ fimWhile:
 	movq %rax, %rdi
 	addq -40(%rbp), %rdi
 	addq $9, %rdi
-	movq %rdi, current_top(%rip)
+	movq %rdi, CURRENT_TOP
 	movq $12, %rax
 	syscall
 fimIf3:
@@ -127,7 +118,7 @@ else:
 	movq	%rax, -40(%rbp)
 fimElse:
 	movq	-24(%rbp), %rax
-	movq	%rax, last_allocated(%rip)
+	movq	%rax, LAST_ALLOCATED
 	movq	-24(%rbp), %rax
 	movb	$1, (%rax)
 	addq	$1, -24(%rbp)

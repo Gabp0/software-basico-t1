@@ -1,12 +1,6 @@
-	.globl	initial_top
-	.globl	current_top
-	.section    .data
-
-initial_top: 
-	.quad	0
-
-current_top:
-	.quad	0
+.section    .data
+	INITIAL_TOP: .quad	0	# inicio da heap
+	CURRENT_TOP: .quad	0	# topo atual da heap
 
 	.section    .text
 	.globl	iniciaAlocador
@@ -16,9 +10,9 @@ iniciaAlocador:
 	movq 	$12, %rax
 	movq 	$0, %rdi
 	syscall
-	movq 	%rax, initial_top(%rip)
-	movq	initial_top(%rip), %rax
-	movq	%rax, current_top(%rip)
+	movq 	%rax, INITIAL_TOP
+	movq	INITIAL_TOP, %rax
+	movq	%rax, CURRENT_TOP
 	popq	%rbp
 	ret
 
@@ -26,7 +20,7 @@ iniciaAlocador:
 finalizaAlocador:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	movq 	initial_top(%rip), %rax
+	movq 	INITIAL_TOP, %rax
 	movq 	%rax, %rdi
 	movq 	$12, %rax
 	syscall
@@ -38,7 +32,7 @@ alocaMem:
 	pushq	%rbp
 	movq	%rsp, %rbp
 	movq	%rdi, -40(%rbp)
-	movq	initial_top(%rip), %rax
+	movq	INITIAL_TOP, %rax
 	movq	%rax, -24(%rbp)
 	jmp	whileIf
 if1:
@@ -57,12 +51,12 @@ fimIf1:
 	addq	$9, %rax
 	addq	%rax, -24(%rbp)
 whileIf:
-	movq	current_top(%rip), %rax
+	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -24(%rbp)
 	jb	if1
 	jmp	fimWhile
 fimWhile:
-	movq	current_top(%rip), %rax
+	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -24(%rbp)
 	jne	fimIf2
 	movq 	$12, %rax
@@ -71,7 +65,7 @@ fimWhile:
 	movq 	%rax, %rdi
 	addq 	-40(%rbp), %rdi
 	addq 	$9, %rdi
-	movq 	%rdi, current_top(%rip)
+	movq 	%rdi, CURRENT_TOP
 	movq 	$12, %rax
 	syscall
 fimIf2:
