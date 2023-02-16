@@ -1,6 +1,8 @@
 .section    .data
 	INITIAL_TOP: .quad	0	# inicio da heap
 	CURRENT_TOP: .quad	0	# topo atual da heap
+
+	block_info_string: .string "#########"
 	
 .section    .text
 
@@ -165,52 +167,62 @@ liberaMem:
 
 .globl imprimeMapa
 imprimeMapa:
-.LFB10:
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$32, %rsp
-	movq	initial_top(%rip), %rax
+
+	movq	INITIAL_TOP, %rax	# aux_ptr = initial_top
 	movq	%rax, -24(%rbp)
-	jmp	.L15
-.L20:
+
+	jmp	fimWhileImp
+
+whileImp:
 	movq	-24(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -8(%rbp)
-	leaq	.LC0(%rip), %rax
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	printf@PLT
-	movq	-24(%rbp), %rax
+
+	# print informacoes gerenciais
+	# movq	$1, %rax 
+	# movq 	$1, %rdi 
+	# movq 	(block_info_string), %rsi
+	# movq	$9, %rdx  
+	# syscall 
+
+	movq	-24(%rbp), %rax	# if (*aux_ptr == 0)
 	movzbl	(%rax), %eax
 	testb	%al, %al
-	jne	.L16
-	movb	$45, -25(%rbp)
-	jmp	.L17
-.L16:
-	movb	$43, -25(%rbp)
-.L17:
-	movq	$0, -16(%rbp)
-	jmp	.L18
-.L19:
-	movsbl	-25(%rbp), %eax
-	movl	%eax, %edi
-	call	putchar@PLT
-	addq	$1, -16(%rbp)
-.L18:
+	jne elseImp
+
+	movb	$45, -25(%rbp)	# c = '-'
+	jmp	fimIfImp
+elseImp:
+	movb	$43, -25(%rbp)	# c = '+'
+fimIfImp:
+	movq	$0, -16(%rbp)	# i = 0
+	jmp	fimForImp
+for:
+	# print conteudo do bloco
+	# movq	$1, %rax 
+	# movq 	$1, %rdi 
+	# movq 	%rbp, %rsi
+	# subq 	$25, %rsi
+	# movq	$1, %rdx  
+	# syscall 
+
+	addq	$1, -16(%rbp)	# i++
+fimForImp:
 	movq	-8(%rbp), %rax
-	cmpq	%rax, -16(%rbp)
-	jb	.L19
+	cmpq	%rax, -16(%rbp) # i < current_block_size
+	jb	for	
+
 	movq	-8(%rbp), %rax
-	addq	$9, %rax
+	addq	$9, %rax		# aux_ptr += current_block_size + 9
 	addq	%rax, -24(%rbp)
-.L15:
-	movq	current_top(%rip), %rax
+
+fimWhileImp:
+	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -24(%rbp)
-	jb	.L20
-	movl	$10, %edi
-	call	putchar@PLT
-	nop
-	leave
-	.cfi_def_cfa 7, 8
+	jb	whileImp
+
+	popq	%rbp
 	ret
-	.cfi_endproc

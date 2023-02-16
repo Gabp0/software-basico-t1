@@ -104,7 +104,7 @@ void imprimeMapa(void)
     {
         current_block_size = *((long long *)(aux_ptr + 1));
 
-        printf("#########");
+        // printf("#########");
 
         if (*aux_ptr == 0)
         {
@@ -117,10 +117,11 @@ void imprimeMapa(void)
 
         for (size_t i = 0; i < current_block_size; i++)
         {
-            printf("%c", c);
+            // printf("%c", c);
+            c++;
         }
 
         aux_ptr += current_block_size + 9;
     }
-    printf("\n");
+    //printf("\n");
 }
