@@ -3,6 +3,7 @@
 	CURRENT_TOP: .quad	0	# topo atual da heap
 
 	block_info_string: .string "#########"
+	newline: .string "\n"
 	
 .section    .text
 
@@ -51,9 +52,9 @@ alocaMem:
 	movabsq	$9223372036854775807, %rax
 	movq	%rax, -24(%rbp)		# best size
 
-	jmp	while
+	jmp	fimWhile1
 	
-	while1:
+whileCont1:
 
 	movq	-40(%rbp), %rax
 	movq	1(%rax), %rax
@@ -76,49 +77,53 @@ alocaMem:
 	movq	-8(%rbp), %rax
 	movq	%rax, -24(%rbp)
 
-	fimIf1:
+fimIf1:
 	movq	-8(%rbp), %rax
 	addq	$9, %rax
-	addq	%rax, -40(%rbp)
+	addq	%rax, -40(%rbp)	# aux_ptr += block_size + 9
 
-	while:	# aux_ptr < CURRENT_TOP
+fimWhile1:	# aux_ptr < CURRENT_TOP
 	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -40(%rbp)
-	jb	while1
+	jb	whileCont1
 
 	movq	-32(%rbp), %rax
 	movq	%rax, -40(%rbp)
-	movq	CURRENT_TOP, %rax
+	movq	CURRENT_TOP, %rax	# if aux_ptr == current_top
 	cmpq	%rax, -40(%rbp)
 	jne	fimIf2
-	movq $12, %rax
-	movq $0, %rdi
-	syscall
-	movq %rax, %rdi
+
+	movq CURRENT_TOP, %rdi	# cria um bloco novo
 	addq -56(%rbp), %rdi
 	addq $9, %rdi
-	movq %rdi, CURRENT_TOP
+
+	movq %rdi, CURRENT_TOP	# chamada ao brk
 	movq $12, %rax
 	syscall
-	fimIf2:
+fimIf2:
+
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
 	movq	-56(%rbp), %rdx
 	addq	$9, %rdx
-	cmpq	%rdx, %rax
+	
+	cmpq	%rdx, %rax	# *(aux_ptr + 1) > (num_bytes + 9)
 	jle	else
+
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
 	subq	-56(%rbp), %rax
 	subq	$9, %rax
+
 	movq	%rax, -16(%rbp)
 	movq	-56(%rbp), %rax
 	leaq	9(%rax), %rdx
 	movq	-40(%rbp), %rax
 	addq	%rdx, %rax
 	movb	$0, (%rax)
+	
 	movq	-56(%rbp), %rax
 	leaq	10(%rax), %rdx
 	movq	-40(%rbp), %rax
@@ -126,7 +131,8 @@ alocaMem:
 	movq	-16(%rbp), %rax
 	movq	%rax, (%rdx)
 	jmp	fimElse
-	else:
+
+else:
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
 	movq	(%rax), %rax
@@ -135,7 +141,7 @@ alocaMem:
 	movq	-40(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -56(%rbp)
-	fimElse:
+fimElse:
 	movq	-40(%rbp), %rax
 	movb	$1, (%rax)
 	addq	$1, -40(%rbp)
@@ -223,6 +229,13 @@ fimWhileImp:
 	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -24(%rbp)
 	jb	whileImp
+
+	# print conteudo do bloco
+	# movq	$1, %rax 
+	# movq 	$1, %rdi 
+	# movq 	(newline), %rsi
+	# movq	$9, %rdx  
+	# syscall 
 
 	popq	%rbp
 	ret

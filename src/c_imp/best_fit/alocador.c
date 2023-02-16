@@ -123,5 +123,5 @@ void imprimeMapa(void)
 
         aux_ptr += current_block_size + 9;
     }
-    //printf("\n");
+    printf('\n');
 }

@@ -3,7 +3,8 @@
 	CURRENT_TOP: .quad	0	# topo atual da heap
 
 	.section    .text
-	.globl	iniciaAlocador
+
+.globl	iniciaAlocador
 iniciaAlocador:
 	pushq	%rbp
 	movq	%rsp, %rbp
@@ -16,7 +17,7 @@ iniciaAlocador:
 	popq	%rbp
 	ret
 
-	.globl	finalizaAlocador
+.globl	finalizaAlocador
 finalizaAlocador:
 	pushq	%rbp
 	movq	%rsp, %rbp
@@ -27,7 +28,7 @@ finalizaAlocador:
 	popq	%rbp
 	ret
 
-	.globl	alocaMem
+.globl	alocaMem
 alocaMem:
 	pushq	%rbp
 	movq	%rsp, %rbp
@@ -115,7 +116,7 @@ fimElse:
 	popq	%rbp
 	ret
 
-	.globl	liberaMem
+.globl	liberaMem
 liberaMem:
 	pushq	%rbp
 	movq	%rsp, %rbp
