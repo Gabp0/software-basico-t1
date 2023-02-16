@@ -13,19 +13,25 @@ initial_top:
 	.size	current_top, 8
 current_top:
 	.zero	8
+#APP
+	.section    .data
+	block_info_string: .string "#########"
+	
+#NO_APP
 	.text
 	.globl	iniciaAlocador
 	.type	iniciaAlocador, @function
 iniciaAlocador:
 .LFB6:
 	.cfi_startproc
+	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 #APP
-# 13 "alocador.c" 1
+# 17 "alocador.c" 1
 	movq $12, %rax
 	movq $0, %rdi
 	syscall
@@ -47,13 +53,14 @@ iniciaAlocador:
 finalizaAlocador:
 .LFB7:
 	.cfi_startproc
+	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 #APP
-# 25 "alocador.c" 1
+# 29 "alocador.c" 1
 	movq initial_top(%rip), %rax
 	movq %rax, %rdi
 	movq $12, %rax
@@ -73,6 +80,7 @@ finalizaAlocador:
 alocaMem:
 .LFB8:
 	.cfi_startproc
+	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
@@ -118,7 +126,7 @@ alocaMem:
 	cmpq	%rax, -40(%rbp)
 	jne	.L7
 #APP
-# 55 "alocador.c" 1
+# 59 "alocador.c" 1
 	movq $12, %rax
 	movq $0, %rdi
 	syscall
@@ -134,10 +142,10 @@ alocaMem:
 .L7:
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
-	movq	(%rax), %rdx
-	movq	-56(%rbp), %rax
-	addq	$9, %rax
-	cmpq	%rax, %rdx
+	movq	(%rax), %rax
+	movq	-56(%rbp), %rdx
+	addq	$9, %rdx
+	cmpq	%rdx, %rax
 	jle	.L8
 	movq	-40(%rbp), %rax
 	addq	$1, %rax
@@ -186,6 +194,7 @@ alocaMem:
 liberaMem:
 .LFB9:
 	.cfi_startproc
+	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
@@ -213,20 +222,20 @@ liberaMem:
 imprimeMapa:
 .LFB10:
 	.cfi_startproc
+	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 	movq	initial_top(%rip), %rax
-	movq	%rax, -24(%rbp)
+	movq	%rax, -16(%rbp)
 	jmp	.L15
 .L20:
-	movq	-24(%rbp), %rax
+	movq	-16(%rbp), %rax
 	movq	1(%rax), %rax
 	movq	%rax, -8(%rbp)
-
-	movq	-24(%rbp), %rax
+	movq	-16(%rbp), %rax
 	movzbl	(%rax), %eax
 	testb	%al, %al
 	jne	.L16
@@ -235,28 +244,60 @@ imprimeMapa:
 .L16:
 	movb	$43, -25(%rbp)
 .L17:
-	movq	$0, -16(%rbp)
+	movq	$0, -24(%rbp)
 	jmp	.L18
 .L19:
-	movzbl	-25(%rbp), %eax
-	addl	$1, %eax
-	movb	%al, -25(%rbp)
-
-	addq	$1, -16(%rbp)
+#APP
+# 132 "alocador.c" 1
+	movq	$1, %rax 
+	movq 	$1, %rdi 
+	movq 	%rbp, %rsi
+	subq 	$25, %rsi
+	movq	$1, %rdx  
+	syscall 
+	
+# 0 "" 2
+#NO_APP
+	addq	$1, -24(%rbp)
 .L18:
 	movq	-8(%rbp), %rax
-	cmpq	%rax, -16(%rbp)
+	cmpq	%rax, -24(%rbp)
 	jb	.L19
+#APP
+# 142 "alocador.c" 1
 	movq	-8(%rbp), %rax
 	addq	$9, %rax
-	addq	%rax, -24(%rbp)
+	addq	%rax, -16(%rbp)
+	
+# 0 "" 2
+#NO_APP
 .L15:
 	movq	current_top(%rip), %rax
-	cmpq	%rax, -24(%rbp)
+	cmpq	%rax, -16(%rbp)
 	jb	.L20
 	nop
 	nop
 	popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
-
+	.cfi_endproc
+.LFE10:
+	.size	imprimeMapa, .-imprimeMapa
+	.ident	"GCC: (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0"
+	.section	.note.GNU-stack,"",@progbits
+	.section	.note.gnu.property,"a"
+	.align 8
+	.long	1f - 0f
+	.long	4f - 1f
+	.long	5
+0:
+	.string	"GNU"
+1:
+	.align 8
+	.long	0xc0000002
+	.long	3f - 2f
+2:
+	.long	0x3
+3:
+	.align 8
+4:

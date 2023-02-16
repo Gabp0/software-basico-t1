@@ -5,6 +5,10 @@
 
 void *initial_top;
 void *current_top;
+__asm__(
+    ".section    .data\n\t"
+    "block_info_string: .string \"#########\"\n\t"
+);
 
 void iniciaAlocador(void)
 // salva o topo inicial da heap
@@ -105,6 +109,13 @@ void imprimeMapa(void)
         current_block_size = *((long long *)(aux_ptr + 1));
 
         // printf("#########");
+        // __asm__(
+        //     "movq	$1, %rax \n\t"
+        //     "movq 	$1, %rdi \n\t"
+        //     "movq 	block_info_string(%rip), %rsi\n\t"
+        //     "movq 	(%rsi), %rsi\n\t"
+        //     "movq	$9, %rdx  \n\t"
+        //     "syscall \n\t");
 
         if (*aux_ptr == 0)
         {
@@ -118,10 +129,20 @@ void imprimeMapa(void)
         for (size_t i = 0; i < current_block_size; i++)
         {
             // printf("%c", c);
-            c++;
+            __asm__(
+                "movq	$1, %rax \n\t"
+                "movq 	$1, %rdi \n\t"
+                "movq 	%rbp, %rsi\n\t"
+                "subq 	$25, %rsi\n\t"
+                "movq	$1, %rdx  \n\t"
+                "syscall \n\t");
         }
 
-        aux_ptr += current_block_size + 9;
+        // aux_ptr += current_block_size + 9;
+        __asm__(
+            "movq	-8(%rbp), %rax\n\t"
+            "addq	$9, %rax\n\t"
+            "addq	%rax, -16(%rbp)\n\t");
     }
-    //printf("\n");
+    // printf("\n");
 }
