@@ -81,7 +81,7 @@ alocaMem:
 	addq	$9, %rax
 	addq	%rax, -40(%rbp)
 
-	while:	# aux_ptr < current_top
+	while:	# aux_ptr < CURRENT_TOP
 	movq	CURRENT_TOP, %rax
 	cmpq	%rax, -40(%rbp)
 	jb	while1
