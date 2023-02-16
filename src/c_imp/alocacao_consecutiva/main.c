@@ -21,7 +21,7 @@
 // }
 
 // algoritmo da secao 6.2
-int main(int argc, char **argv)
+int main(void)
 {
     void *a;
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     for (i = 0; i < 100; i++)
     {
         a = alocaMem(100);
-        strcpy(a, " TESTE ");
+        // strcpy(a, " TESTE ");
         // printf("%p %s \n", a, (char *)a);
         liberaMem(a);
     }

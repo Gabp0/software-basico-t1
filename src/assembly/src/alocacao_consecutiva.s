@@ -1,32 +1,32 @@
-	.file	"main.c"
-	.text
+.section .text
 	.globl	main
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
-
 	subq	$16, %rsp
+
 	call	iniciaAlocador@PLT
-	movl	$0, -12(%rbp)
-	jmp	.L2
-.L3:
+
+	movl	$0, -12(%rbp)	# i
+	jmp	fimFor
+for:
 	movl	$100, %edi
 	call	alocaMem@PLT
 	movq	%rax, -8(%rbp)
+
+	call	imprimeMapa@PLT
+
 	movq	-8(%rbp), %rax
 	movq	%rax, %rdi
 	call	liberaMem@PLT
-	addl	$1, -12(%rbp)
-.L2:
+
+	addl	$1, -12(%rbp)	# i++
+fimFor:
 	cmpl	$99, -12(%rbp)
-	jle	.L3
+	jle	for
+
+
 	call	finalizaAlocador@PLT
 	movl	$0, %eax
-	leave
-	.cfi_def_cfa 7, 8
+
 	ret
-	.cfi_endproc
-.LFE0:
-	.size	main, .-main
-	.ident	"GCC: (GNU) 12.2.1 20230201"
-	.section	.note.GNU-stack,"",@progbits

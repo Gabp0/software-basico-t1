@@ -13,29 +13,29 @@ int main(int argc, char const *argv[])
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
     liberaMem(a);
-    //imprimeMapa();
+    imprimeMapa();
 
     b = alocaMem(60);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
-    //imprimeMapa();
+    imprimeMapa();
 
     a = alocaMem(30);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
-    //imprimeMapa();
+    imprimeMapa();
     liberaMem(a);
     liberaMem(b);
 
     a = alocaMem(10);
     strcpy(a, " TESTE ");
     printf("%p %s\n", a, (char *)a);
-    //imprimeMapa();
+    imprimeMapa();
 
     b = alocaMem(50);
     strcpy(b, " TESTE ");
     printf("%p %s\n", b, (char *)b);
-    //imprimeMapa();
+    imprimeMapa();
 
     finalizaAlocador();
 

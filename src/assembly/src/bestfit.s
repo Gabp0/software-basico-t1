@@ -123,7 +123,7 @@ fimIf2:
 	movq	-40(%rbp), %rax
 	addq	%rdx, %rax
 	movb	$0, (%rax)
-	
+
 	movq	-56(%rbp), %rax
 	leaq	10(%rax), %rdx
 	movq	-40(%rbp), %rax
@@ -230,12 +230,12 @@ whileForImp:
 	cmpq	%rax, -16(%rbp)
 	jb	whileImp
 
-	# print conteudo do bloco
-	# movq	$1, %rax 
-	# movq 	$1, %rdi 
-	# movq 	(newline), %rsi
-	# movq	$9, %rdx  
-	# syscall 
+	# print newline
+	movq	$1, %rax 
+	movq 	$1, %rdi 
+	movq 	$newline, %rsi
+	movq	$1, %rdx  
+	syscall 
 
 	popq	%rbp
 	ret

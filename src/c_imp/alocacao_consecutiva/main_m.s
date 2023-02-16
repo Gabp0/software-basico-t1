@@ -1,12 +1,14 @@
-	.file	"main.c"
-	.text
+.section .text
 	.globl	main
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
+	subq	$32, %rsp
 
-	subq	$16, %rsp
+	movl	%edi, -20(%rbp)
+	movq	%rsi, -32(%rbp)
 	call	iniciaAlocador@PLT
+	
 	movl	$0, -12(%rbp)
 	jmp	.L2
 .L3:
@@ -23,10 +25,4 @@ main:
 	call	finalizaAlocador@PLT
 	movl	$0, %eax
 	leave
-	.cfi_def_cfa 7, 8
 	ret
-	.cfi_endproc
-.LFE0:
-	.size	main, .-main
-	.ident	"GCC: (GNU) 12.2.1 20230201"
-	.section	.note.GNU-stack,"",@progbits
